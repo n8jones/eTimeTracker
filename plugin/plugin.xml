@@ -8,7 +8,7 @@
          default="true"
          extensions="timelog"
          id="me.natejones.ett.Editor"
-         name="Editor">
+         name="TimeLog Editor">
   	</editor>
    </extension>
 	<extension point="org.eclipse.core.runtime.contentTypes">

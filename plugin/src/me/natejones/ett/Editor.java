@@ -1,9 +1,13 @@
 package me.natejones.ett;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Vector;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.viewers.ArrayContentProvider;
@@ -36,17 +40,30 @@ public class Editor extends EditorPart{
 
 	private Text txtInput;
 	private TableViewer tableViewer;
-	private final List<TimeLogEntry> entries = new Vector<>();
+	private final List<TimeLogEntry> entries = new ArrayList<>();
+	private boolean dirty = false;
+	
+	private void setDirty(boolean dirty){
+		boolean old = this.dirty;
+		this.dirty = dirty;
+		firePropertyChange(PROP_DIRTY);
+	}
 
 	@Override
-	public void doSave(IProgressMonitor arg0) {
-		// TODO Auto-generated method stub
-
+	public void doSave(IProgressMonitor monitor) {
+		FileEditorInput input = (FileEditorInput)getEditorInput();
+		TimeLog log = new TimeLog(entries);
+		ByteArrayInputStream bais = new ByteArrayInputStream(TimeLogUtils.toBytes(log));
+		try {
+			input.getFile().setContents(bais, true, true, monitor);
+		} catch (CoreException e) {
+			e.printStackTrace();
+		}
+		setDirty(false);
 	}
 
 	@Override
 	public void doSaveAs() {
-		// TODO Auto-generated method stub
 
 	}
 
@@ -57,24 +74,29 @@ public class Editor extends EditorPart{
 		setSite(arg0);
 		setInput(arg1);
 		setTitle(arg1.getName());
+		try {
+			TimeLog timeLog = TimeLogUtils.read(input.getFile().getContents());
+			entries.clear();
+			for(TimeLogEntry entry : timeLog.getEntries()) entries.add(entry);
+		} catch (Exception e) {
+			throw new PartInitException("There was a problem loading the Timelog at: " + input, e);
+		}
+		
 	}
 
 	@Override
 	public boolean isDirty() {
-		// TODO Auto-generated method stub
-		return false;
+		return dirty;
 	}
 
 	@Override
 	public boolean isSaveAsAllowed() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public void createPartControl(Composite parent) {
 		parent.setLayout(new GridLayout(1, false));
-
 		txtInput = new Text(parent, SWT.BORDER);
 		txtInput.setMessage("What have you been doing?");
 		txtInput.addKeyListener(new KeyAdapter(){
@@ -84,13 +106,13 @@ public class Editor extends EditorPart{
 					entries.add(new TimeLogEntry(new Date(), txtInput.getText()));
 					txtInput.setText("");
 					tableViewer.refresh();
+					setDirty(true);
 				}
 			}
 		});
 		GridDataFactory.defaultsFor(txtInput)
 					   .grab(true, false)
 					   .applyTo(txtInput);
-		entries.add(new TimeLogEntry(new Date(), "Arrive"));
 		tableViewer = new TableViewer(parent);
 		final Table table = tableViewer.getTable();
 		table.setLayoutData(new GridData(GridData.FILL_BOTH));

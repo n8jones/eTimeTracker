@@ -52,4 +52,14 @@ public class TimeLogUtils {
 		}
 		out.flush();
 	}
+	
+	public static byte[] toBytes(TimeLog timeLog){
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		try {
+			write(baos, timeLog);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+		return baos.toByteArray();
+	}
 }

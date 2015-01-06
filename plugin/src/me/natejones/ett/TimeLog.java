@@ -5,9 +5,23 @@ import java.util.*;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 
 public final class TimeLog {
-	private final List<TimeLogLine> lines = new ArrayList<TimeLogLine>();
+	private final List<TimeLogLine> lines;
+	
+	public TimeLog(){
+		lines = Lists.newArrayList();
+	}
+	
+	public TimeLog(Iterable<TimeLogEntry> entries){
+		lines = Lists.newArrayList(Iterables.transform(entries, new Function<TimeLogEntry, TimeLogLine>(){
+			@Override
+			public TimeLogLine apply(TimeLogEntry arg0) {
+				return new TimeLogLine(null, arg0);
+			}
+		}));
+	}
 	
 	public List<TimeLogLine> getLines(){
 		return lines;
