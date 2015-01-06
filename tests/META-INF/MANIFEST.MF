@@ -5,4 +5,5 @@ Bundle-SymbolicName: me.natejones.ett.tests
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Require-Bundle: me.natejones.ett,
+ com.google.guava,
  org.junit
