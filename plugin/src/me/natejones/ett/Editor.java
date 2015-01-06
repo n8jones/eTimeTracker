@@ -7,8 +7,17 @@ import java.util.Date;
 import java.util.List;
 import java.util.Vector;
 
+
+
+import org.eclipse.core.databinding.beans.BeanProperties;
+import org.eclipse.core.databinding.observable.list.WritableList;
+import org.eclipse.core.databinding.observable.map.IObservableMap;
+import org.eclipse.core.databinding.observable.set.IObservableSet;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jface.databinding.viewers.ObservableListContentProvider;
+import org.eclipse.jface.databinding.viewers.ObservableMapCellLabelProvider;
+import org.eclipse.jface.databinding.viewers.ObservableMapLabelProvider;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.CellLabelProvider;
@@ -29,6 +38,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
@@ -36,15 +46,16 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.EditorPart;
 import org.eclipse.ui.part.FileEditorInput;
 
+import com.google.common.collect.Iterables;
+
 public class Editor extends EditorPart{
 
 	private Text txtInput;
 	private TableViewer tableViewer;
-	private final List<TimeLogEntry> entries = new ArrayList<>();
+	private final WritableList entries = new WritableList();
 	private boolean dirty = false;
 	
 	private void setDirty(boolean dirty){
-		boolean old = this.dirty;
 		this.dirty = dirty;
 		firePropertyChange(PROP_DIRTY);
 	}
@@ -52,7 +63,8 @@ public class Editor extends EditorPart{
 	@Override
 	public void doSave(IProgressMonitor monitor) {
 		FileEditorInput input = (FileEditorInput)getEditorInput();
-		TimeLog log = new TimeLog(entries);
+		TimeLog log = new TimeLog();
+		for(Object entry : entries) log.getLines().add(new TimeLogLine(null, (TimeLogEntry)entry));
 		ByteArrayInputStream bais = new ByteArrayInputStream(TimeLogUtils.toBytes(log));
 		try {
 			input.getFile().setContents(bais, true, true, monitor);
@@ -105,7 +117,6 @@ public class Editor extends EditorPart{
 				if(arg0.character == '\r'){
 					entries.add(new TimeLogEntry(new Date(), txtInput.getText()));
 					txtInput.setText("");
-					tableViewer.refresh();
 					setDirty(true);
 				}
 			}
@@ -114,42 +125,32 @@ public class Editor extends EditorPart{
 					   .grab(true, false)
 					   .applyTo(txtInput);
 		tableViewer = new TableViewer(parent);
-		final Table table = tableViewer.getTable();
+		Table table = tableViewer.getTable();
 		table.setLayoutData(new GridData(GridData.FILL_BOTH));
 		table.setHeaderVisible(true);
 		table.setLinesVisible(true);
-		tableViewer.setContentProvider(new ArrayContentProvider());
-		createTimeColumn(tableViewer);
-		createMessageColumn(tableViewer);
-		
+		ObservableListContentProvider contentProvider = 
+				new ObservableListContentProvider();
+		tableViewer.setContentProvider(contentProvider);
+		IObservableSet knownElements = contentProvider.getKnownElements();
+		createPropertyColumn(tableViewer, knownElements, "time", "Time", 250);
+		createPropertyColumn(tableViewer, knownElements, "message", "Message", 500);
 		tableViewer.setInput(entries);
 	}
 	
-	private static void createTimeColumn(final TableViewer tableViewer){
-		final TableViewerColumn dateCol = new TableViewerColumn(tableViewer, SWT.NONE);
-		dateCol.getColumn().setWidth(250);
-		dateCol.getColumn().setText("Time");
-		dateCol.setLabelProvider(new ColumnLabelProvider(){
-			@Override
-			  public String getText(Object element) {
-			    TimeLogEntry e = (TimeLogEntry) element;
-			    Date d = e.getTime();
-			    return d!=null ? d.toString() : "";
-			  }
-		});
-	}
-	
-	private static void createMessageColumn(final TableViewer tableViewer){
-		final TableViewerColumn dateCol = new TableViewerColumn(tableViewer, SWT.NONE);
-		dateCol.getColumn().setWidth(500);
-		dateCol.getColumn().setText("Message");
-		dateCol.setLabelProvider(new ColumnLabelProvider(){
-			@Override
-			  public String getText(Object element) {
-			    TimeLogEntry e = (TimeLogEntry) element;
-			    return e.getMessage();
-			  }
-		});
+	private static TableViewerColumn createPropertyColumn(
+			TableViewer viewer, 
+			IObservableSet knownElements, 
+			String property, 
+			String label, 
+			int width){
+		TableViewerColumn col = new TableViewerColumn(viewer, SWT.NONE);
+		TableColumn tc = col.getColumn();
+		tc.setWidth(width);
+		tc.setText(label);
+		IObservableMap oMap = BeanProperties.value(TimeLogEntry.class, property).observeDetail(knownElements);
+		col.setLabelProvider(new ObservableMapCellLabelProvider(oMap));
+		return col;
 	}
 
 	@Override
