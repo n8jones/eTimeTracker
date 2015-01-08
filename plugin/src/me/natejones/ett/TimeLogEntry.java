@@ -2,7 +2,7 @@ package me.natejones.ett;
 
 import java.util.Date;
 
-public final class TimeLogEntry {
+public final class TimeLogEntry extends ModelObject{
 	private Date time;
 	private String message;
 	
@@ -21,7 +21,7 @@ public final class TimeLogEntry {
 	}
 	
 	public void setTime(Date time) {
-		this.time = time;
+		firePropertyChange("time", this.time, this.time = time);
 	}
 	
 	public String getMessage() {
@@ -29,7 +29,7 @@ public final class TimeLogEntry {
 	}
 	
 	public void setMessage(String message) {
-		this.message = message;
+		firePropertyChange("message", this.message, this.message = message);
 	}
 	
 	
