@@ -15,7 +15,9 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.jface.databinding
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
-Import-Package: org.eclipse.core.resources
+Import-Package: com.google.common.base,
+ com.google.common.collect,
+ org.eclipse.core.resources
 Export-Package: me.natejones.ett;
   uses:="org.osgi.framework,
    org.eclipse.ui,

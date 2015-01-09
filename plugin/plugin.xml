@@ -23,7 +23,7 @@
 		<extension
       point = "org.eclipse.ui.newWizards">
  	<wizard
-	   id = "org.eclipse.ui.examples.readmetool.wizards.new.file"
+	   id = "me.natejones.ett.timelog.newfile"
       	   name = "Time Log"
 	   class="me.natejones.ett.NewFileWizard">
     	   <description>Create a new time log file.</description>
