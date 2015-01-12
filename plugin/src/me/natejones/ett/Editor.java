@@ -172,6 +172,8 @@ public class Editor extends EditorPart {
                         }).toArray(IContentProposal.class);
                }
             }, null, null);
+      contentProposalAdapter
+            .setProposalAcceptanceStyle(ContentProposalAdapter.PROPOSAL_REPLACE);
       GridDataFactory.defaultsFor(txtInput).grab(true, false).applyTo(txtInput);
 
       Group grpFilter = new Group(parent, SWT.NONE);
