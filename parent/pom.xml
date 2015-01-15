@@ -6,7 +6,7 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
   <groupId>me.natejones.ett</groupId>
-  <artifactId>parent</artifactId>
+  <artifactId>me.natejones.ett.parent</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <packaging>pom</packaging>
 
@@ -48,4 +48,5 @@
       </plugin>
     </plugins>
   </build>
+  <name>eTimeTracker Parent</name>
 </project>

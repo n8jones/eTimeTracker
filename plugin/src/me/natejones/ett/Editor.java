@@ -54,6 +54,9 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Ordering;
 
+/**
+ * Defines an editor workspace part for TimeLog journal files.
+ */
 public class Editor extends EditorPart {
    public Editor() {
    }
@@ -125,7 +128,6 @@ public class Editor extends EditorPart {
       return false;
    }
 
-   @SuppressWarnings("unused")
    @Override
    public void createPartControl(Composite parent) {
       parent.setLayout(new GridLayout(1, false));
@@ -228,6 +230,7 @@ public class Editor extends EditorPart {
       tableViewer.setContentProvider(contentProvider);
 
       IObservableSet knownElements = contentProvider.getKnownElements();
+
       createPropertyColumn(tableViewer, knownElements, "time", "Time", 250);
       createPropertyColumn(tableViewer, knownElements, "message", "Message",
             500);
