@@ -14,7 +14,6 @@
     <tycho-version>0.22.0</tycho-version>
   </properties>
   <repositories>
-    <!-- configure p2 repository to resolve against -->
     <repository>
       <id>luna</id>
       <layout>p2</layout>
@@ -24,7 +23,6 @@
   <build>
     <plugins>
       <plugin>
-        <!-- enable tycho build extension -->
         <groupId>org.eclipse.tycho</groupId>
         <artifactId>tycho-maven-plugin</artifactId>
         <version>${tycho-version}</version>
@@ -35,8 +33,8 @@
         <artifactId>target-platform-configuration</artifactId>
         <version>${tycho-version}</version>
         <configuration>
-          <!-- recommended: use p2-based target platform resolver -->
           <resolver>p2</resolver>
+          <pomDependencies>consider</pomDependencies>
           <environments>
             <environment>
               <os>win32</os>

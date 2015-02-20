@@ -26,4 +26,7 @@ Export-Package: me.natejones.ett;
    org.eclipse.swt.widgets,
    org.eclipse.ui.wizards.newresource,
    org.eclipse.ui.plugin,
-   org.eclipse.ui.part"
+   org.eclipse.ui.part",
+ org.joda.time
+Bundle-ClassPath: target/dependency/joda-time-2.7.jar,
+ .
